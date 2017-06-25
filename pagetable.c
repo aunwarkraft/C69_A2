@@ -145,6 +145,16 @@ char *find_physpage(addr_t vaddr, char type) {
 
 	// Check if p is valid or not, on swap or not, and handle appropriately
 
+<<<<<<< Updated upstream
+=======
+			// TODO: set to dirty or clean?
+
+		}
+	} else {
+		// hit
+		hit_count++;
+	}
+>>>>>>> Stashed changes
 
 
 	// Make sure that p is marked valid and referenced. Also mark it
