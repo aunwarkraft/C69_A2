@@ -136,20 +136,59 @@ char *find_physpage(addr_t vaddr, char type) {
 
 	// IMPLEMENTATION NEEDED
 	// Use top-level page directory to get pointer to 2nd-level page table
-	(void)idx; // To keep compiler happy - remove when you have a real use.
-
+	//(void)idx; // To keep compiler happy - remove when you have a real use.
+	pgtbl_entry_t *pgtbl;
+	pgtbl = (pgtbl_entry_t *)(pgdir[idx].pde & PAGE_MASK);
 
 	// Use vaddr to get index into 2nd-level page table and initialize 'p'
-
+	p = &pgtbl[idx]; // p is a pointer to a page table entry
 
 
 	// Check if p is valid or not, on swap or not, and handle appropriately
+	if((p->frame & PG_VALID) == 0){
+		// allocate (simulated) physical frame
+		int frame = allocate_frame(p);
+		// miss
+		miss_count++;
 
+		// check if its on swap or not
+		if((p->frame & PG_ONSWAP) == 1) {
+			//reading the page data from swap
+			swap_pagein(frame, p->offset);
+
+			// shift over to leave room for status bits 
+			p->frame = frame << PAGE_SHIFT;
+
+			// not on swap anymore
+			p->frame &= ~PG_ONSWAP;
+
+			// TODO: set to dirty or clean?
+
+		} else {
+			// create a new frame 
+			init_frame(frame, vaddr);
+
+			// shift over to leave room for status bits 
+			p->frame = frame << PAGE_SHIFT;
+
+			// TODO: set to dirty or clean?
+			
+		}
+	} else {
+		// hit
+		hit_count++;
+	}
 
 
 	// Make sure that p is marked valid and referenced. Also mark it
 	// dirty if the access type indicates that the page will be written to.
+	if(type == 'M' || type == 'S') {
+		p->frame |= PG_DIRTY;
+	}
 
+	p->frame |= PG_VALID;
+	p->frame |= PG_REF;
+	ref_count++
 
 
 	// Call replacement algorithm's ref_fcn for this page
