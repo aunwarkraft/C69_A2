@@ -28,7 +28,21 @@ struct QueueNode *last;
  */
 int fifo_evict() {
 	int evictFrame = first->frame;
-	first = first->next;
+	//proper freeing mechanism for first QueueNode is still missing
+	/*
+	if(first->next != NULL){
+		struct QueueNode *tempNode;
+		tempNode = first->next;
+		free(first);
+		first = temp;
+		free(temp);
+	}
+	*/
+
+	// if therse only one node in the Queue the pointer to the first node is not changed
+	if(first->next != NULL){
+		first = first->next;
+	}
 	return evictFrame;
 }
 
@@ -37,10 +51,12 @@ int fifo_evict() {
  * Input: The page table entry for the page that is being accessed.
  */
 void fifo_ref(pgtbl_entry_t *p) {
+	// the QueueNode for last has already been created
+	last->frame = p->frame;
+	// create QueueNode for future
 	last->next = malloc(sizeof(struct QueueNode));
 	last = last->Next;
 	last->next = NULL
-	last->frame = p->frame;
 	return;
 }
 
@@ -50,5 +66,6 @@ void fifo_ref(pgtbl_entry_t *p) {
 void fifo_init() {
 	*first = malloc(sizeof(struct QueueNode));
 	first->next = NULL;
+	//since there's only QueueNode first and last QueueNodes are the same
 	last = first;
 }
