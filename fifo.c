@@ -34,7 +34,7 @@ int fifo_evict() {
 		tempNode = first->next;
 		free(first);
 		first = tempNode;
-		free(tempNode);
+		//free(tempNode);
 	}
 
 	// if therse only one node in the Queue the pointer to the first node is not changed
@@ -43,7 +43,7 @@ int fifo_evict() {
 		first = first->next;
 	}
 	*/
-	return evictFrame;
+	return (evictFrame % memsize);
 }
 
 /* This function is called on each access to a page to update any information
