@@ -32,6 +32,7 @@ int clock_evict() {
 	evictFrame = curr;
 	refList[evictFrame] = 1;
 	curr++;
+	curr = curr % memsize;
 	return evictFrame;
 }
 
@@ -40,7 +41,9 @@ int clock_evict() {
  * Input: The page table entry for the page that is being accessed.
  */
 void clock_ref(pgtbl_entry_t *p) {
-	refList[p->frame] = 1;
+	int refFrame;
+	refFrame = p->frame % memsize;
+	refList[refFrame] = 1;
 }
 
 /* Initialize any data structures needed for this replacement
@@ -49,7 +52,8 @@ void clock_ref(pgtbl_entry_t *p) {
 void clock_init() {
 	curr = 0;
 	refList = malloc(sizeof(int) * memsize);
-	for(int i = 0; i < memsize; i++){
+	int i = 0;
+	for(i = 0; i < memsize; i++){
 		refList[i] = 0;
 	}
 }
