@@ -22,12 +22,16 @@ struct QueueNode *first;
 //pointer that stores the frame number that was accessed last
 struct QueueNode *last;
 
+int curr;
+
 /* Page to evict is chosen using the fifo algorithm.
  * Returns the page frame number (which is also the index in the coremap)
  * for the page that is to be evicted.
  */
 int fifo_evict() {
 	int evictFrame = first->frame;
+	evictFrame = curr; 
+	curr++;
 	//proper freeing mechanism for first QueueNode is still missing
 	if(first->next != NULL){
 		struct QueueNode *tempNode;
@@ -67,4 +71,5 @@ void fifo_init() {
 	first->next = NULL;
 	//since there's only QueueNode first and last QueueNodes are the same
 	last = first;
+	curr = 0;
 }
