@@ -20,9 +20,12 @@ int curr;
  * for the page that is to be evicted.
  */
 int fifo_evict() {
-	evictFrame = curr; 
+	// calculate value for evictFrame
+	int evictFrame = curr; 
+	// increment frame # for next evict
 	curr++;
-	return (evictFrame % memsize);
+	curr = curr % memsize;
+	return evictFrame;
 }
 
 /* This function is called on each access to a page to update any information
