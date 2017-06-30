@@ -213,9 +213,6 @@ char *find_physpage(addr_t vaddr, char type) {
 		hit_count++;
 	}
     
-    // used in opt
-    //coremap[p->frame >> PAGE_SHIFT].vaddr = vaddr & PAGE_MASK;
-
 	// Make sure that p is marked valid and referenced. Also mark it
 	// dirty if the access type indicates that the page will be written to.
 	if(type == 'M' || type == 'S') {
