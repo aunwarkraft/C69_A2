@@ -20,16 +20,42 @@ extern struct frame *coremap;
 int size;
 addr_t *addr_list;
 
+static int line;
+
 void count_lines(FILE *infp);
 void populate_addr_list(FILE *infp);
+int next_ref(addr_t vaddr);
 
 /* Page to evict is chosen using the optimal (aka MIN) algorithm. 
  * Returns the page frame number (which is also the index in the coremap)
  * for the page that is to be evicted.
  */
 int opt_evict() {
-	
-	return 0;
+    int i;
+    int next = 0;
+    int evict = -1;
+    int farthest_ref = -1;
+	for(i = 0; i < memsize; i++) {
+        next = next_ref(coremap[i].pte->vaddr);
+        
+        if(next >= farthest_ref) {
+            evict = i;
+            farthest_ref = next;
+        }
+    }
+
+    return evict;
+}
+
+int next_ref(addr_t vaddr) {
+    int j;
+    
+    for(j = 0; j < size - line; j++) {
+        if(addr_list[j + line] == vaddr) {
+            return j;
+        }
+    }
+    return size - line + 1;
 }
 
 /* This function is called on each access to a page to update any information
@@ -37,14 +63,15 @@ int opt_evict() {
  * Input: The page table entry for the page that is being accessed.
  */
 void opt_ref(pgtbl_entry_t *p) {
-
-	return;
+    p->vaddr = addr_list[line];
+    line++;
 }
 
 /* Initializes any data structures needed for this
  * replacement algorithm.
  */
 void opt_init() {
+    line = 0;
     size = 0;
     FILE *f;
     f = fopen(tracefile, "r");
@@ -55,10 +82,18 @@ void opt_init() {
     }
     
     count_lines(f);
+
     // a list of addresses
     addr_list = malloc(size * sizeof(addr_t));
-    
-    populate_addr_list(f);
+
+    FILE *ff;
+    ff = fopen(tracefile, "r");
+
+    if (ff == NULL) {
+        fprintf(stderr, "fopen: '%s': permision denied\n", tracefile);
+        exit(-1);
+    }
+    populate_addr_list(ff);
 }
 
 // modified from sim.c
@@ -77,7 +112,6 @@ void count_lines(FILE *infp) {
 		} else {
 			continue;
 		}
-
 	}
 }
 

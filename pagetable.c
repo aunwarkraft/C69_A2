@@ -50,6 +50,8 @@ int allocate_frame(pgtbl_entry_t *p) {
 	    	int swap_offset = swap_pageout(frame, victim->swap_off);
 	    	if(swap_offset == INVALID_SWAP) {
 	    		// failure
+                perror("failed to swap out");
+                exit(-1);
 	    	} else {
 	    		// success
 
@@ -210,7 +212,9 @@ char *find_physpage(addr_t vaddr, char type) {
 		// hit
 		hit_count++;
 	}
-
+    
+    // used in opt
+    //coremap[p->frame >> PAGE_SHIFT].vaddr = vaddr & PAGE_MASK;
 
 	// Make sure that p is marked valid and referenced. Also mark it
 	// dirty if the access type indicates that the page will be written to.
